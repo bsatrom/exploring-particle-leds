@@ -2,7 +2,6 @@
   <Page class="page">
     <ActionBar class="action-bar" title="RGB Commander">
     </ActionBar>
-
     <StackLayout class="rgb-main">
       <Label class="body" 
         textWrap=true 
@@ -40,13 +39,22 @@ import axios from 'axios';
 const baseUrl = 'https://api.particle.io/v1/devices/340020001147353138383138';
 const token = '12345';
 
-console.log(process.env);
-
-const callParticleAPI = (endpoint, value, type = 'POST') => {
+const callParticleAPI = (endpoint, value) => {
   axios({
-    method: type,
+    method: 'POST',
     url: `${baseUrl}/${endpoint}?access_token=${token}`,
     data: `{ "arg": "${value}" }`,
+    headers: { 'content-type': 'application/json' }
+  }).catch(error => {
+    console.error(error);
+  });
+};
+
+const signalDevice = value => {
+  axios({
+    method: 'PUT',
+    url: `${baseUrl}?access_token=${token}`,
+    data: `{ "signal": ${value} }`,
     headers: { 'content-type': 'application/json' }
   }).catch(error => {
     console.error(error);
@@ -82,7 +90,7 @@ export default {
       callParticleAPI('toggleCtrl', this.isControlling);
     },
     onSignalChanged: function(args) {
-      callParticleAPI('', this.isSignaling, 'PUT');
+      signalDevice(this.isSignaling ? 1 : 0);
     }
   }
 };

@@ -72,29 +72,30 @@ int setBlink(String val) {
 }
 
 int toggleCtrl(String val) {
-  isAppControlled = val.toInt();
+  if (val == "true") {
+    isAppControlled = 1;
+  } else {
+    isAppControlled = 0;
+  }
 
   return 1;
 }
 
 void useRGBClass() {
+  blinkLED.setActive(false);
+
   // Physical position is flipped on board to provide a more natual left to right feel,
   // so we subtract our final value from 255 to "flip" it.
   // analogRead values are divided by 16 to convert from a 4095 max to 255.
   int red = 255 - analogRead(RED_POT) / 16;
   int green = 255 - analogRead(GREEN_POT) / 16;
   int blue = 255 - analogRead(BLUE_POT) / 16;
+  int brightnessPotVal = 255 - analogRead(BRIGHTNESS_POT) / 16;
 
   RGB.control(true);
 
-  int brightnessPotVal = 255 - analogRead(BRIGHTNESS_POT) / 16;
-
   // Map R, G, B Pots to R, G, B values for the LED
   RGB.color(red, blue, green);
-
-  // Use mirrorTo and just map the pins
-  // RGB.mirrorTo(RED_POT, GREEN_POT, BLUE_POT);
-
   // Map brightness pot to value
   RGB.brightness(brightnessPotVal);
 }
@@ -106,7 +107,7 @@ void useLEDStatusClass(int red, int green, int blue, int blinkRate) {
   LEDSpeed blinkSpeed = LED_SPEED_SLOW;
 
   // Convert the R, G, B values to Hex with some fancy bit shifting
-  long RGBHex = (red << 16) | (green << 8) | blue;
+  unsigned long RGBHex = (red << 16) | (green << 8) | blue;
 
   // Set the blink rate
   switch(blinkRate) {
@@ -125,6 +126,5 @@ void useLEDStatusClass(int red, int green, int blue, int blinkRate) {
   blinkLED.setColor(RGBHex);
   blinkLED.setPattern(LED_PATTERN_BLINK);
   blinkLED.setSpeed(blinkSpeed);
-  // blinkLED.setSpeed((LEDSpeed)blinkRate);
   if (!blinkLED.isActive()) blinkLED.setActive(true);
 }
